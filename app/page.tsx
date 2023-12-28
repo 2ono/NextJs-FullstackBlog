@@ -1,5 +1,11 @@
-import Image from 'next/image'
+import CategoriedsList from "@/components/CategoriedsList";
+import Image from "next/image";
 
 export default function Home() {
-  return (<div>Hello</div>)
+  return (
+    <>
+    <CategoriedsList />
+      <div>Post</div>
+    </>
+  );
 }
