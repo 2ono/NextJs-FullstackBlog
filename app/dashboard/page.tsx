@@ -1,12 +1,12 @@
-import CategoriedsList from "@/components/CategoriedsList";
+import React from "react";
+import { postsData } from "@/data";
 import Post from "@/components/Post";
-import Image from "next/image";
-import { postsData } from "../data";
-
-export default function Home() {
+import Link from "next/link";
+const DashBoard = () => {
   return (
-    <>
-      <CategoriedsList />
+    <div>
+      <h1>My Post</h1>
+
       {postsData && postsData.length > 0 ? (
         postsData.map((post, i) => (
           <Post
@@ -23,8 +23,12 @@ export default function Home() {
           />
         ))
       ) : (
-        <div className="py-6">No Posts</div>
+        <div className="py-6">
+          No Posts. <Link className="underline" href={"/create-post"}>Create New</Link>
+        </div>
       )}
-    </>
+    </div>
   );
-}
+};
+
+export default DashBoard;
