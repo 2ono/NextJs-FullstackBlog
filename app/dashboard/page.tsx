@@ -2,7 +2,17 @@ import React from "react";
 import { postsData } from "@/data";
 import Post from "@/components/Post";
 import Link from "next/link";
-const DashBoard = () => {
+import { getServerSession } from "next-auth";
+import { authOptions } from "../api/auth/[...nextauth]/route";
+import { redirect } from "next/navigation";
+
+const DashBoard = async () => {
+  const session = await getServerSession(authOptions);
+
+  if (!session) {
+    redirect("/sign-in");
+  }
+
   return (
     <div>
       <h1>My Post</h1>
@@ -24,7 +34,10 @@ const DashBoard = () => {
         ))
       ) : (
         <div className="py-6">
-          No Posts. <Link className="underline" href={"/create-post"}>Create New</Link>
+          No Posts.{" "}
+          <Link className="underline" href={"/create-post"}>
+            Create New
+          </Link>
         </div>
       )}
     </div>
