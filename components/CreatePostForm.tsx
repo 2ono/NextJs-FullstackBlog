@@ -1,10 +1,31 @@
 "use client";
-import React, { useState } from "react";
-import { categoriesData } from "@/data";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { TCategory } from "@/app/types";
+import { useRouter } from "next/navigation";
+
 const CreatePostForm = () => {
   const [links, setLinks] = useState<string[]>([]);
   const [linkInput, setLinkInput] = useState("");
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [categories, setCategories] = useState<TCategory[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [publicId, setPublicId] = useState("");
+  const [error, setError] = useState("");
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchAllCategories = async () => {
+      const res = await fetch(`api/categories`);
+      const catNames = await res.json();
+      setCategories(catNames);
+    };
+
+    fetchAllCategories();
+  }, []);
 
   const addLink = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
@@ -15,15 +36,54 @@ const CreatePostForm = () => {
   };
 
   const deleteLink = (index: number) => {
-    setLinks((prev) => prev.filter((_, i) => i !== index))
-  }
+    setLinks((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!title || !content) {
+      setError("Title and content are required!");
+      return;
+    }
+
+    try {
+      const res = await fetch("api/posts/", {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify({
+          title,
+          content,
+          links,
+          selectedCategory,
+          imageUrl,
+          publicId,
+        }),
+      });
+
+      if (res.ok) {
+        router.push("/dashboard");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <div>
       <h2>Create Post</h2>
-      <form className="flex flex-col gap-2">
-        <input type="text" placeholder="Title" />
-        <textarea placeholder="content" />
+      <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+        <input
+          onChange={(e) => setTitle(e.target.value)}
+          type="text"
+          placeholder="Title"
+        />
+        <textarea
+          onChange={(e) => setContent(e.target.value)}
+          placeholder="content"
+        />
 
         {links &&
           links.map((link, i) => (
@@ -39,7 +99,9 @@ const CreatePostForm = () => {
                   <path d="M11.603 7.963a.75.75 0 0 0-.977 1.138 2.5 2.5 0 0 1 .142 3.667l-3 3a2.5 2.5 0 0 1-3.536-3.536l1.225-1.224a.75.75 0 0 0-1.061-1.06l-1.224 1.224a4 4 0 1 0 5.656 5.656l3-3a4 4 0 0 0-.225-5.865Z" />
                 </svg>
               </span>
-              <Link className="link" href={link}>{link}</Link>
+              <Link className="link" href={link}>
+                {link}
+              </Link>
               <span className="cursor-pointer" onClick={() => deleteLink(i)}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -80,12 +142,15 @@ const CreatePostForm = () => {
           </button>
         </div>
 
-        <select className="p-3 rounded-md border appearance-none">
+        <select
+          onChange={(e) => setSelectedCategory(e.target.value)}
+          className="p-3 rounded-md border appearance-none"
+        >
           <option>Select A Category</option>
-          {categoriesData &&
-            categoriesData.map((category) => (
-              <option key={category.id} value={category.name}>
-                {category.name}
+          {categories &&
+            categories.map((category) => (
+              <option key={category.id} value={category.catName}>
+                {category.catName}
               </option>
             ))}
         </select>
@@ -94,7 +159,7 @@ const CreatePostForm = () => {
           Create Post
         </button>
 
-        <div className="p-2 text-red-500 font-bold">Error Message</div>
+        {error && <div className="p-2 text-red-500 font-bold">{error}</div>}
       </form>
     </div>
   );
