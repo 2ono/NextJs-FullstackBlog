@@ -42,7 +42,18 @@ const Post = async ({
   return (
     <div className="my-4 border-b-8 py-8">
       <div className="mb-4">
-        Posted by: <span className="font-bold">{author}</span> on {formattedDate}
+        {author ? (
+          <>
+          Posted by: <span className="font-bold">{author}</span> on {formattedDate}
+          </>
+
+        ): (
+          <>
+          Posted by on {formattedDate}
+          </>
+
+        )
+        }
       </div>
       <div className="w-full h-96 relative">
         {thumbnail ? (
@@ -97,7 +108,7 @@ const Post = async ({
       {isEditable && (
         <div className="flex gap-3 font-bold py-2 px-4 rounded-md bg-slate-200 w-fit">
           <Link href={`/edit-post/${id}`}>Edit</Link>
-          <DeleteButton />
+          <DeleteButton id={id} />
         </div>
       )}
     </div>
