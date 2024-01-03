@@ -34,7 +34,7 @@ const Navbar = () => {
             Tech News
           </h1>
           <p className="text-sm">
-            Expoloring Tomorriw's Innovations, <br />
+            Expoloring Tomorriw&apos;s Innovations, <br />
             One Bytes at a Time
           </p>
         </Link>
