@@ -3,6 +3,9 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { TCategory, TPost } from "@/app/types";
 import { useRouter } from "next/navigation";
+import { CldUploadButton, CldUploadWidgetResults } from "next-cloudinary";
+import Image from "next/image";
+
 
 const EditPostForm = ({ post }: { post: TPost }) => {
   const [links, setLinks] = useState<string[]>([]);
@@ -41,6 +44,41 @@ const EditPostForm = ({ post }: { post: TPost }) => {
     initValue();
   }, [post.title, post.content, post.imageUrl, post.publicId,
      post.catName, post.links]);
+
+
+  const handleImageUpload = (result: CldUploadWidgetResults) => {
+    console.log("result", result);
+    const info = result.info as Object;
+
+    if ("secure_url" in info && "public_id" in info) {
+      const url = info.secure_url as string;
+      const public_id = info.public_id as string;
+      setImageUrl(url);
+      setPublicId(public_id);
+
+      console.log("url: ", url);
+      console.log("public_id: ", public_id);
+    }
+  };
+
+  const removeImage = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const res = await fetch("/api/removeImage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ publicId }),
+      });
+
+      if (res.ok) {
+        setImageUrl("");
+        setPublicId("");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const addLink = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
@@ -158,7 +196,47 @@ const EditPostForm = ({ post }: { post: TPost }) => {
             Add
           </button>
         </div>
+        <CldUploadButton
+          uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}
+          className={`h-48 border-2 mt-4
+          border-dotted grid place-items-center bg-slate-100 rounded-md relative ${
+            imageUrl && "pointer-events-none"
+          }`}
+          onUpload={handleImageUpload}
+        >
+          <div>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              className="w-5 h-5"
+            >
+              <path
+                fillRule="evenodd"
+                d="M1 5.25A2.25 2.25 0 0 1 3.25 3h13.5A2.25 2.25 0 0 1 19 5.25v9.5A2.25 2.25 0 0 1 16.75 17H3.25A2.25 2.25 0 0 1 1 14.75v-9.5Zm1.5 5.81v3.69c0 .414.336.75.75.75h13.5a.75.75 0 0 0 .75-.75v-2.69l-2.22-2.219a.75.75 0 0 0-1.06 0l-1.91 1.909.47.47a.75.75 0 1 1-1.06 1.06L6.53 8.091a.75.75 0 0 0-1.06 0l-2.97 2.97ZM12 7a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
+          {imageUrl && (
+            <Image
+              src={imageUrl}
+              fill
+              className="absolute object-cover
+          inset-0"
+              alt={title}
+            />
+          )}
+        </CldUploadButton>
 
+        {publicId && (
+          <button
+            onClick={removeImage}
+            className="py-2 px-4 rounded-md font-bold w-fit bg-red-600 text-white mb-4"
+          >
+            Remove Image
+          </button>
+        )}
         <select
           onChange={(e) => setSelectedCategory(e.target.value)}
           className="p-3 rounded-md border appearance-none"
