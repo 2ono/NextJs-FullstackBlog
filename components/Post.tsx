@@ -4,6 +4,7 @@ import React from "react";
 import DeleteButton from "./DeleteButton";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+
 interface PostProps {
   id: string;
   author: string;
