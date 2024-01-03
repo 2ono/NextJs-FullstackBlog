@@ -5,6 +5,7 @@ import { TCategory, TPost } from "@/app/types";
 import { useRouter } from "next/navigation";
 import { CldUploadButton, CldUploadWidgetResults } from "next-cloudinary";
 import Image from "next/image";
+import toast from "react-hot-toast";
 
 
 const EditPostForm = ({ post }: { post: TPost }) => {
@@ -16,7 +17,6 @@ const EditPostForm = ({ post }: { post: TPost }) => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [publicId, setPublicId] = useState("");
-  const [error, setError] = useState("");
 
   const router = useRouter();
 
@@ -96,7 +96,8 @@ const EditPostForm = ({ post }: { post: TPost }) => {
     e.preventDefault();
 
     if (!title || !content) {
-      setError("Title and content are required!");
+      const errorMessage = "Title and content are required!"
+      toast.error(errorMessage);
       return;
     }
 
@@ -117,7 +118,12 @@ const EditPostForm = ({ post }: { post: TPost }) => {
       });
 
       if (res.ok) {
+        const successMessage = 'Successfully Edited Post!'
+        toast.success(successMessage);
         router.push("/dashboard");
+        router.refresh();
+      } else {
+        toast.error('something went wrong!')
       }
     } catch (error) {
       console.log(error);
@@ -255,7 +261,6 @@ const EditPostForm = ({ post }: { post: TPost }) => {
           Update Post
         </button>
 
-        {error && <div className="p-2 text-red-500 font-bold">{error}</div>}
       </form>
     </div>
   );

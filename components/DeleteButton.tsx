@@ -1,7 +1,10 @@
 "use client";
+import { useRouter } from "next/navigation";
 import React from "react";
+import toast from "react-hot-toast";
 
 const DeleteButton = ({ id }: { id: string }) => {
+  const router = useRouter();
 
   const deleteImage = async function (publicId: string) {
     const res = await fetch("/api/removeImage", {
@@ -26,10 +29,15 @@ const DeleteButton = ({ id }: { id: string }) => {
         });
 
         if (res.ok) {
-          console.log("Post deleted");
+          const deletedMessage = 'successfully deleted Post!'
+          toast.success(deletedMessage);
           const post = await res.json();
           const {publicId} = post;
           await deleteImage(publicId);
+
+          router.refresh();
+        } else {
+          toast.error('something went wrong!')
         }
       } catch (error) {
         console.log(error);

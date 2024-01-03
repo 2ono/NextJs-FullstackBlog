@@ -5,6 +5,7 @@ import { TCategory } from "@/app/types";
 import { useRouter } from "next/navigation";
 import { CldUploadButton, CldUploadWidgetResults } from "next-cloudinary";
 import Image from "next/image";
+import toast from "react-hot-toast";
 
 const CreatePostForm = () => {
   const [links, setLinks] = useState<string[]>([]);
@@ -15,7 +16,6 @@ const CreatePostForm = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [publicId, setPublicId] = useState("");
-  const [error, setError] = useState("");
 
   const router = useRouter();
 
@@ -79,7 +79,8 @@ const CreatePostForm = () => {
     e.preventDefault();
 
     if (!title || !content) {
-      setError("Title and content are required!");
+      const errorMessage = "Title and content are required";
+      toast.error(errorMessage);
       return;
     }
 
@@ -100,7 +101,12 @@ const CreatePostForm = () => {
       });
 
       if (res.ok) {
+        const successMesage = "Created Post Successfully!";
+        toast.success(successMesage);
         router.push("/dashboard");
+        router.refresh();
+      } else {
+        toast.error("Something went wrong");
       }
     } catch (error) {
       console.log(error);
@@ -177,7 +183,7 @@ const CreatePostForm = () => {
             Add
           </button>
         </div>
-        
+
         <CldUploadButton
           uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}
           className={`h-48 border-2 mt-4
@@ -236,8 +242,6 @@ const CreatePostForm = () => {
         <button className="primary-btn" type="submit">
           Create Post
         </button>
-
-        {error && <div className="p-2 text-red-500 font-bold">{error}</div>}
       </form>
     </div>
   );
